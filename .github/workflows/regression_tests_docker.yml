@@ -22,6 +22,11 @@ jobs:
     runs-on:
       - ${{ matrix.hardware }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
@@ -31,7 +36,7 @@ jobs:
           ls -la ./
           docker system prune --all --volumes -f
       - name: Checkout TorchServe
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
           submodules: recursive
       - name: Branch name
@@ -61,7 +66,7 @@ jobs:
           docker system prune -f && docker rmi pytorch/torchserve:ci
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
-        uses: dacbd/create-issue-action@v1
+        uses: dacbd/create-issue-action@ba4d1c45cccf9c483f2720cefb40e437f0ee6f7d # v1.2.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Docker Regression on ${{ matrix.hardware }} failed
